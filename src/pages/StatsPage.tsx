@@ -60,6 +60,14 @@ const StatsPage = () => {
   // Colors for pie chart
   const COLORS = ["#4CAF50", "#FFC107", "#F44336"];
   
+  // Helper function to safely format values that might be strings
+  const formatValue = (value: any): string => {
+    if (typeof value === 'number') {
+      return `${value.toFixed(1)}%`;
+    }
+    return `${value}%`;
+  };
+  
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8">
@@ -78,7 +86,7 @@ const StatsPage = () => {
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={50} />
-                <Tooltip formatter={(value) => [`${value.toFixed(1)}%`]} />
+                <Tooltip formatter={(value) => [formatValue(value)]} />
                 <Legend />
                 <ReferenceLine x={75} stroke="#FF5722" label={{ value: 'Min. Required', position: 'insideBottomRight', fill: '#888' }} />
                 <Bar dataKey="current" name="Current Attendance" fill="#3F51B5" radius={[0, 4, 4, 0]} />
