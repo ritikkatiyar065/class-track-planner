@@ -10,7 +10,7 @@ interface FineContextType {
   showFines: boolean;
   setShowFines: (show: boolean) => void;
   totalFineAmount: number;
-  subjectFines: Map<string, { amount: number; shortfall: number }>;
+  overallShortfall: number | null;
   recalculateFines: (subjects?: Subject[]) => void;
 }
 
@@ -20,25 +20,30 @@ export const FineProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [fineRate, setFineRate] = useState<number>(400);
   const [showFines, setShowFines] = useState<boolean>(true);
   const [totalFineAmount, setTotalFineAmount] = useState<number>(0);
-  const [subjectFines, setSubjectFines] = useState<Map<string, { amount: number; shortfall: number }>>(
-    new Map()
-  );
+  const [overallShortfall, setOverallShortfall] = useState<number | null>(null);
 
   const recalculateFines = (subjects: Subject[] = mockSubjects) => {
-    let total = 0;
-    const fines = new Map<string, { amount: number; shortfall: number }>();
+    // Calculate overall attendance
+    const totalAttended = subjects.reduce((sum, subject) => sum + subject.attendedClasses, 0);
+    const totalClasses = subjects.reduce((sum, subject) => sum + subject.totalClasses, 0);
+    
+    // Default target attendance is 75% if no subjects
+    const targetAttendance = subjects.length > 0 
+      ? subjects.reduce((sum, subject) => sum + subject.targetAttendance, 0) / subjects.length 
+      : 75;
+    
+    const overallAttendance = totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0;
 
-    subjects.forEach(subject => {
-      const fine = calculateAttendanceFine(subject.currentAttendance, subject.targetAttendance, fineRate);
-      
-      if (fine) {
-        total += fine.amount;
-        fines.set(subject.id, fine);
-      }
-    });
-
-    setTotalFineAmount(total);
-    setSubjectFines(fines);
+    // Calculate fine based on overall attendance
+    const fine = calculateAttendanceFine(overallAttendance, targetAttendance, fineRate);
+    
+    if (fine) {
+      setTotalFineAmount(fine.amount);
+      setOverallShortfall(fine.shortfall);
+    } else {
+      setTotalFineAmount(0);
+      setOverallShortfall(null);
+    }
   };
 
   // Calculate fines initially and when fine rate changes
@@ -54,7 +59,7 @@ export const FineProvider: React.FC<{ children: React.ReactNode }> = ({ children
         showFines,
         setShowFines,
         totalFineAmount,
-        subjectFines,
+        overallShortfall,
         recalculateFines,
       }}
     >

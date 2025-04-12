@@ -6,9 +6,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
 const FineNotification = () => {
-  const { totalFineAmount, showFines, setShowFines } = useFine();
+  const { totalFineAmount, overallShortfall, showFines, setShowFines } = useFine();
   
-  if (!showFines || totalFineAmount <= 0) {
+  if (!showFines || totalFineAmount <= 0 || !overallShortfall) {
     return null;
   }
   
@@ -21,7 +21,7 @@ const FineNotification = () => {
             <span className="font-semibold">
               ⚠️ Attendance Fine: {formatFineAmount(totalFineAmount)}
             </span>
-            {' '}due to attendance shortfall. Improve your attendance to avoid additional fines.
+            {' '}due to {overallShortfall}% overall attendance shortfall. Improve your attendance to avoid additional fines.
           </AlertDescription>
         </div>
         <Button 

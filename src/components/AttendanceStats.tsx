@@ -2,7 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Subject, AttendanceStats as Stats } from "@/types";
 import { calculateAttendanceStats, formatAttendancePercentage } from "@/utils/attendanceUtils";
-import { CalendarCheck, CalendarX, Clock, Target, Banknote } from "lucide-react";
+import { CalendarCheck, CalendarX, Clock, Target } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -14,8 +14,6 @@ import {
   ReferenceLine,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { useFine } from "@/contexts/FineContext";
-import { formatFineAmount } from "@/utils/fineUtils";
 
 interface AttendanceStatsProps {
   subject: Subject;
@@ -23,8 +21,6 @@ interface AttendanceStatsProps {
 
 const AttendanceStats = ({ subject }: AttendanceStatsProps) => {
   const stats = calculateAttendanceStats(subject);
-  const { subjectFines, showFines } = useFine();
-  const fine = subjectFines.get(subject.id);
   
   // Generate fake data for the chart
   const chartData = [
@@ -83,16 +79,6 @@ const AttendanceStats = ({ subject }: AttendanceStatsProps) => {
           description="Your current attendance status"
           status={stats.status}
         />
-        
-        {showFines && fine && fine.amount > 0 && (
-          <StatCard 
-            title="Attendance Fine"
-            value={formatFineAmount(fine.amount)}
-            icon={<Banknote className="h-5 w-5 text-amber-500" />}
-            description={`Based on ${fine.shortfall}% attendance shortfall`}
-            status="below-target"
-          />
-        )}
       </div>
       
       <Card>
