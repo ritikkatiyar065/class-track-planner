@@ -1,20 +1,25 @@
 
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Subject } from "@/types";
 import { mockSubjects } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, UserCircle, FileEdit } from "lucide-react";
+import { ArrowLeft, Edit, UserCircle, FileEdit, Trash2 } from "lucide-react";
 import AttendanceStats from "@/components/AttendanceStats";
 import AttendanceTracker from "@/components/AttendanceTracker";
 import { useToast } from "@/hooks/use-toast";
+import EditSubjectForm from "@/components/EditSubjectForm";
+import DeleteSubjectDialog from "@/components/DeleteSubjectDialog";
 
 const SubjectDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [subject, setSubject] = useState<Subject | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -26,7 +31,12 @@ const SubjectDetail = () => {
       setSubject(foundSubject);
     }
     setLoading(false);
-  }, [id]);
+    
+    // Check if the edit parameter is in the URL
+    if (searchParams.get('edit') === 'true') {
+      setShowEditForm(true);
+    }
+  }, [id, searchParams]);
   
   const handleAttendanceUpdate = (attended: boolean) => {
     if (!subject) return;
@@ -48,6 +58,40 @@ const SubjectDetail = () => {
       title: "Attendance updated",
       description: `Your attendance for ${subject.name} is now ${updatedSubject.currentAttendance.toFixed(1)}%`,
     });
+  };
+  
+  const handleEditClick = () => {
+    setShowEditForm(true);
+    setSearchParams({ edit: 'true' });
+  };
+  
+  const handleUpdateSubject = (updatedSubject: Subject) => {
+    setSubject(updatedSubject);
+    setShowEditForm(false);
+    setSearchParams({});
+    
+    // In a real app, this would save to an API or local storage
+    toast({
+      title: "Subject updated",
+      description: `${updatedSubject.name} has been updated.`,
+    });
+  };
+  
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+  
+  const handleDeleteConfirm = () => {
+    if (!subject) return;
+    
+    // In a real app, this would delete from an API or local storage
+    toast({
+      title: "Subject deleted",
+      description: `${subject.name} has been removed from your subjects.`,
+    });
+    
+    // Navigate back to subjects page
+    navigate('/subjects');
   };
   
   if (loading) {
@@ -80,11 +124,34 @@ const SubjectDetail = () => {
     );
   }
   
+  if (showEditForm) {
+    return (
+      <div className="container max-w-6xl mx-auto px-4 py-8">
+        <Button onClick={() => {
+          setShowEditForm(false);
+          setSearchParams({});
+        }} variant="outline" className="mb-4">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Subject Details
+        </Button>
+        
+        <EditSubjectForm 
+          subject={subject} 
+          onUpdateSubject={handleUpdateSubject}
+          onCancel={() => {
+            setShowEditForm(false);
+            setSearchParams({});
+          }}
+        />
+      </div>
+    );
+  }
+  
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
-      <Button onClick={() => navigate('/dashboard')} variant="outline" className="mb-4">
+      <Button onClick={() => navigate('/subjects')} variant="outline" className="mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Dashboard
+        Back to Subjects
       </Button>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -105,10 +172,16 @@ const SubjectDetail = () => {
                 )}
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Subject
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleEditClick}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Subject
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDeleteClick} className="text-destructive border-destructive hover:bg-destructive/10">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </div>
           
           <Tabs defaultValue="statistics">
@@ -142,6 +215,13 @@ const SubjectDetail = () => {
           <AttendanceTracker subject={subject} onAttendanceUpdate={handleAttendanceUpdate} />
         </div>
       </div>
+      
+      <DeleteSubjectDialog
+        subject={subject}
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 };

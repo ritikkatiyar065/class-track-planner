@@ -7,11 +7,16 @@ import { PlusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AddSubjectForm from "@/components/AddSubjectForm";
 import { Subject } from "@/types";
+import DeleteSubjectDialog from "@/components/DeleteSubjectDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const SubjectsPage = () => {
   const [subjects, setSubjects] = useState<Subject[]>(mockSubjects);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleAddSubject = (newSubject: Subject) => {
     setSubjects(prev => [...prev, newSubject]);
@@ -20,6 +25,24 @@ const SubjectsPage = () => {
   
   const handleSubjectClick = (subject: Subject) => {
     navigate(`/subjects/${subject.id}`);
+  };
+  
+  const handleDeleteClick = (subject: Subject) => {
+    setSubjectToDelete(subject);
+    setShowDeleteDialog(true);
+  };
+  
+  const handleDeleteConfirm = (subject: Subject) => {
+    setSubjects(prev => prev.filter(s => s.id !== subject.id));
+    setShowDeleteDialog(false);
+    toast({
+      title: "Subject deleted",
+      description: `${subject.name} has been removed from your subjects.`,
+    });
+  };
+  
+  const handleEditClick = (subject: Subject) => {
+    navigate(`/subjects/${subject.id}?edit=true`);
   };
   
   return (
@@ -43,16 +66,35 @@ const SubjectsPage = () => {
           />
         </div>
       ) : (
-        <div className="attendance-grid">
-          {subjects.map((subject) => (
-            <SubjectCard 
-              key={subject.id} 
-              subject={subject} 
-              onClick={() => handleSubjectClick(subject)}
-            />
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {subjects.length > 0 ? (
+            subjects.map((subject) => (
+              <SubjectCard 
+                key={subject.id} 
+                subject={subject} 
+                onClick={() => handleSubjectClick(subject)}
+                onDelete={() => handleDeleteClick(subject)}
+                onEdit={() => handleEditClick(subject)}
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <h3 className="text-lg font-medium">No subjects added yet</h3>
+              <p className="text-muted-foreground mb-4">Get started by adding your first subject</p>
+              <Button onClick={() => setShowAddForm(true)}>
+                Add Your First Subject
+              </Button>
+            </div>
+          )}
         </div>
       )}
+      
+      <DeleteSubjectDialog 
+        subject={subjectToDelete}
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 };

@@ -3,17 +3,30 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Subject, AttendanceStats } from "@/types";
 import { Progress } from "@/components/ui/progress";
 import { calculateAttendanceStats, formatAttendancePercentage, getStatusColor } from "@/utils/attendanceUtils";
-import { BookOpen, Calendar, AlertTriangle, CheckCircle } from "lucide-react";
+import { BookOpen, Calendar, AlertTriangle, CheckCircle, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 interface SubjectCardProps {
   subject: Subject;
   onClick?: () => void;
+  onEdit?: (subject: Subject) => void;
+  onDelete?: (subject: Subject) => void;
 }
 
-const SubjectCard = ({ subject, onClick }: SubjectCardProps) => {
+const SubjectCard = ({ subject, onClick, onEdit, onDelete }: SubjectCardProps) => {
   const stats: AttendanceStats = calculateAttendanceStats(subject);
   const statusColor = getStatusColor(stats.status);
+  
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) onEdit(subject);
+  };
+  
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDelete) onDelete(subject);
+  };
   
   return (
     <Card 
@@ -28,10 +41,24 @@ const SubjectCard = ({ subject, onClick }: SubjectCardProps) => {
             <h3 className="font-semibold text-lg">{subject.name}</h3>
             <p className="text-sm text-muted-foreground">{subject.code}</p>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             {stats.status === 'on-track' && <CheckCircle className="h-5 w-5 text-success" />}
             {stats.status === 'at-risk' && <AlertTriangle className="h-5 w-5 text-warning" />}
             {stats.status === 'below-target' && <AlertTriangle className="h-5 w-5 text-destructive" />}
+            
+            {onEdit && (
+              <Button size="icon" variant="ghost" onClick={handleEdit} className="h-8 w-8">
+                <Edit className="h-4 w-4" />
+                <span className="sr-only">Edit</span>
+              </Button>
+            )}
+            
+            {onDelete && (
+              <Button size="icon" variant="ghost" onClick={handleDelete} className="h-8 w-8">
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -46,10 +73,9 @@ const SubjectCard = ({ subject, onClick }: SubjectCardProps) => {
             </div>
             <Progress 
               value={stats.currentPercentage} 
-              className="h-2"
-              indicatorClassName={cn(
-                stats.status === 'on-track' ? 'bg-success' : 
-                stats.status === 'at-risk' ? 'bg-warning' : 'bg-destructive'
+              className={cn("h-2", 
+                stats.status === 'on-track' ? 'bg-success/20' : 
+                stats.status === 'at-risk' ? 'bg-warning/20' : 'bg-destructive/20'
               )}
             />
           </div>

@@ -41,3 +41,9 @@ export interface AttendanceStats {
   canMissClasses: number;
   status: 'on-track' | 'at-risk' | 'below-target';
 }
+
+// Type for describing the subject edit action
+export interface SubjectAction {
+  type: 'add' | 'update' | 'delete';
+  subject: Subject;
+}
