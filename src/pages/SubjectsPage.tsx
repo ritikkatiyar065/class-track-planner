@@ -1,100 +1,158 @@
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Subject } from "@/types";
 import { mockSubjects } from "@/data/mockData";
 import SubjectCard from "@/components/SubjectCard";
-import { PlusCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import AddSubjectForm from "@/components/AddSubjectForm";
-import { Subject } from "@/types";
-import DeleteSubjectDialog from "@/components/DeleteSubjectDialog";
+import { Button } from "@/components/ui/button";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import AddSubjectForm from "@/components/AddSubjectForm";
+import EditSubjectForm from "@/components/EditSubjectForm";
+import DeleteSubjectDialog from "@/components/DeleteSubjectDialog";
+import { getRandomSubjectColor } from "@/utils/attendanceUtils";
+import { Input } from "@/components/ui/input";
+import { useFine } from "@/contexts/FineContext";
 
 const SubjectsPage = () => {
-  const [subjects, setSubjects] = useState<Subject[]>(mockSubjects);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(null);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { recalculateFines } = useFine();
+  
+  useEffect(() => {
+    // Simulate loading data from an API
+    setTimeout(() => {
+      setSubjects(mockSubjects);
+      setLoading(false);
+    }, 500);
+  }, []);
+  
+  const filteredSubjects = subjects.filter((subject) =>
+    subject.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    subject.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   
   const handleAddSubject = (newSubject: Subject) => {
-    setSubjects(prev => [...prev, newSubject]);
+    setSubjects((prev) => {
+      const updated = [...prev, newSubject];
+      recalculateFines(updated); // Recalculate fines when adding subject
+      return updated;
+    });
     setShowAddForm(false);
   };
   
-  const handleSubjectClick = (subject: Subject) => {
-    navigate(`/subjects/${subject.id}`);
-  };
-  
-  const handleDeleteClick = (subject: Subject) => {
-    setSubjectToDelete(subject);
-    setShowDeleteDialog(true);
-  };
-  
-  const handleDeleteConfirm = (subject: Subject) => {
-    setSubjects(prev => prev.filter(s => s.id !== subject.id));
-    setShowDeleteDialog(false);
+  const handleDeleteSubject = (subjectId: string) => {
+    setSubjects((prev) => {
+      const updated = prev.filter((s) => s.id !== subjectId);
+      recalculateFines(updated); // Recalculate fines when deleting subject
+      return updated;
+    });
+    
     toast({
       title: "Subject deleted",
-      description: `${subject.name} has been removed from your subjects.`,
+      description: "The subject has been removed.",
+    });
+    
+    setShowDeleteDialog(false);
+  };
+  
+  const handleUpdateSubject = (updatedSubject: Subject) => {
+    setSubjects((prev) => {
+      const updated = prev.map((s) => 
+        s.id === updatedSubject.id ? updatedSubject : s
+      );
+      recalculateFines(updated); // Recalculate fines when updating subject
+      return updated;
+    });
+    
+    setShowEditForm(false);
+    
+    toast({
+      title: "Subject updated",
+      description: `${updatedSubject.name} has been updated.`,
     });
   };
   
   const handleEditClick = (subject: Subject) => {
-    navigate(`/subjects/${subject.id}?edit=true`);
+    setSelectedSubject(subject);
+    setShowEditForm(true);
   };
+  
+  const handleDeleteClick = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setShowDeleteDialog(true);
+  };
+  
+  if (loading) {
+    return (
+      <div className="container max-w-6xl mx-auto px-4 py-8 flex justify-center items-center">
+        <p>Loading subjects...</p>
+      </div>
+    );
+  }
   
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Your Subjects</h1>
-          <p className="text-muted-foreground">Manage all your subject details in one place</p>
-        </div>
-        <Button onClick={() => setShowAddForm(true)} className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
+      <div className="mb-6 flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight">My Subjects</h1>
+        <Button onClick={() => setShowAddForm(true)}>
+          <Plus className="mr-2 h-4 w-4" />
           Add Subject
         </Button>
       </div>
       
-      {showAddForm ? (
-        <div className="mb-8">
-          <AddSubjectForm 
-            onAddSubject={handleAddSubject} 
-            onCancel={() => setShowAddForm(false)} 
+      <div className="mb-4">
+        <Input
+          type="search"
+          placeholder="Search subjects..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredSubjects.map((subject) => (
+          <SubjectCard
+            key={subject.id}
+            subject={subject}
+            onClick={() => navigate(`/subjects/${subject.id}`)}
+            onEdit={() => handleEditClick(subject)}
+            onDelete={() => handleDeleteClick(subject)}
           />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subjects.length > 0 ? (
-            subjects.map((subject) => (
-              <SubjectCard 
-                key={subject.id} 
-                subject={subject} 
-                onClick={() => handleSubjectClick(subject)}
-                onDelete={() => handleDeleteClick(subject)}
-                onEdit={() => handleEditClick(subject)}
-              />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <h3 className="text-lg font-medium">No subjects added yet</h3>
-              <p className="text-muted-foreground mb-4">Get started by adding your first subject</p>
-              <Button onClick={() => setShowAddForm(true)}>
-                Add Your First Subject
-              </Button>
-            </div>
-          )}
-        </div>
+        ))}
+      </div>
+      
+      {showAddForm && (
+        <AddSubjectForm
+          onAddSubject={(newSubject) => {
+            handleAddSubject({ ...newSubject, color: getRandomSubjectColor() });
+          }}
+          onCancel={() => setShowAddForm(false)}
+        />
       )}
       
-      <DeleteSubjectDialog 
-        subject={subjectToDelete}
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleDeleteConfirm}
-      />
+      {showEditForm && selectedSubject && (
+        <EditSubjectForm
+          subject={selectedSubject}
+          onUpdateSubject={handleUpdateSubject}
+          onCancel={() => setShowEditForm(false)}
+        />
+      )}
+      
+      {showDeleteDialog && selectedSubject && (
+        <DeleteSubjectDialog
+          subject={selectedSubject}
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={() => handleDeleteSubject(selectedSubject.id)}
+        />
+      )}
     </div>
   );
 };

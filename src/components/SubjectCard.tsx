@@ -3,9 +3,11 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Subject, AttendanceStats } from "@/types";
 import { Progress } from "@/components/ui/progress";
 import { calculateAttendanceStats, formatAttendancePercentage, getStatusColor } from "@/utils/attendanceUtils";
-import { BookOpen, Calendar, AlertTriangle, CheckCircle, Edit, Trash2 } from "lucide-react";
+import { BookOpen, Calendar, AlertTriangle, CheckCircle, Edit, Trash2, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { useFine } from "@/contexts/FineContext";
+import { formatFineAmount } from "@/utils/fineUtils";
 
 interface SubjectCardProps {
   subject: Subject;
@@ -17,6 +19,10 @@ interface SubjectCardProps {
 const SubjectCard = ({ subject, onClick, onEdit, onDelete }: SubjectCardProps) => {
   const stats: AttendanceStats = calculateAttendanceStats(subject);
   const statusColor = getStatusColor(stats.status);
+  const { subjectFines, showFines } = useFine();
+  
+  const fine = subjectFines.get(subject.id);
+  const hasFine = fine && fine.amount > 0;
   
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -77,6 +83,10 @@ const SubjectCard = ({ subject, onClick, onEdit, onDelete }: SubjectCardProps) =
                 stats.status === 'on-track' ? 'bg-success/20' : 
                 stats.status === 'at-risk' ? 'bg-warning/20' : 'bg-destructive/20'
               )}
+              indicatorClassName={
+                stats.status === 'on-track' ? 'bg-success' : 
+                stats.status === 'at-risk' ? 'bg-warning' : 'bg-destructive'
+              }
             />
           </div>
           
@@ -102,6 +112,13 @@ const SubjectCard = ({ subject, onClick, onEdit, onDelete }: SubjectCardProps) =
             </>
           )}
         </div>
+        
+        {showFines && hasFine && (
+          <div className="flex items-center gap-1 text-amber-600 mt-1">
+            <Banknote className="h-4 w-4" />
+            <span>Fine: <strong>{formatFineAmount(fine.amount)}</strong> ({fine.shortfall}% shortfall)</span>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

@@ -6,6 +6,7 @@ import { ModeToggle } from "@/components/ModeToggle";
 import { cn } from "@/lib/utils";
 import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import FineNotification from "./FineNotification";
 
 const AppLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -132,6 +133,9 @@ const AppLayout = () => {
         
         {/* Main content */}
         <main className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 pt-4">
+            <FineNotification />
+          </div>
           <Outlet />
         </main>
       </div>
