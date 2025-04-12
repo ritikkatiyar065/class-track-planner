@@ -24,7 +24,7 @@ export const calculateAttendanceFine = (
   // Calculate shortfall (rounded to 1 decimal place)
   const shortfall = parseFloat((targetAttendance - currentAttendance).toFixed(1));
   
-  // Calculate fine amount
+  // Calculate fine amount (rounded to nearest integer)
   const fineAmount = Math.round(shortfall * fineRate);
   
   return {
