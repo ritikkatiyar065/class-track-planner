@@ -7,8 +7,8 @@ import { getRandomSubjectColor } from "../utils/attendanceUtils";
 export const mockSubjects: Subject[] = [
   {
     id: uuidv4(),
-    name: "Data Structures",
-    code: "CS201",
+    name: "Electrical",
+    code: "EE101",
     instructor: "Dr. Johnson",
     targetAttendance: 75,
     currentAttendance: 80,
@@ -18,8 +18,8 @@ export const mockSubjects: Subject[] = [
   },
   {
     id: uuidv4(),
-    name: "Calculus II",
-    code: "MATH202",
+    name: "Physics",
+    code: "PHY101",
     instructor: "Prof. Smith",
     targetAttendance: 75,
     currentAttendance: 65,
@@ -29,8 +29,8 @@ export const mockSubjects: Subject[] = [
   },
   {
     id: uuidv4(),
-    name: "Physics for Engineers",
-    code: "PHY101",
+    name: "Mathematics",
+    code: "MATH102",
     instructor: "Dr. Williams",
     targetAttendance: 80,
     currentAttendance: 90,
@@ -40,8 +40,8 @@ export const mockSubjects: Subject[] = [
   },
   {
     id: uuidv4(),
-    name: "Database Systems",
-    code: "CS301",
+    name: "PPS",
+    code: "CS101",
     instructor: "Prof. Garcia",
     targetAttendance: 75,
     currentAttendance: 72,
@@ -51,8 +51,8 @@ export const mockSubjects: Subject[] = [
   },
   {
     id: uuidv4(),
-    name: "Digital Logic Design",
-    code: "ECE205",
+    name: "EVS",
+    code: "ENV205",
     instructor: "Dr. Chen",
     targetAttendance: 70,
     currentAttendance: 60,

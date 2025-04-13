@@ -19,10 +19,14 @@ const FormCompletionCheckbox: React.FC<FormCompletionCheckboxProps> = ({ form })
             <Checkbox
               checked={field.value}
               onCheckedChange={field.onChange}
+              id="task-completed"
             />
           </FormControl>
           <div className="space-y-1 leading-none">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <label 
+              htmlFor="task-completed"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
               Mark as completed
             </label>
           </div>
