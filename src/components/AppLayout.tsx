@@ -4,7 +4,7 @@ import { Link, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
 import { cn } from "@/lib/utils";
-import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen } from "lucide-react";
+import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen, CheckSquare } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FineNotification from "./FineNotification";
 
@@ -38,6 +38,7 @@ const AppLayout = () => {
     { path: "/subjects", label: "Subjects", icon: <BookOpen className="h-5 w-5" /> },
     { path: "/timetable", label: "Timetable", icon: <Calendar className="h-5 w-5" /> },
     { path: "/stats", label: "Analytics", icon: <BarChart3 className="h-5 w-5" /> },
+    { path: "/todo", label: "Tasks", icon: <CheckSquare className="h-5 w-5" /> },
     { path: "/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
   ];
   
