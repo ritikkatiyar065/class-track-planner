@@ -47,3 +47,23 @@ export interface SubjectAction {
   type: 'add' | 'update' | 'delete';
   subject: Subject;
 }
+
+// ToDo List related types
+export interface TodoItem {
+  id: string;
+  title: string;
+  description?: string;
+  dueDate?: Date;
+  subjectId?: string; // Optional link to a subject
+  completed: boolean;
+  createdAt: Date;
+  priority: 'high' | 'medium' | 'low';
+  category: 'assignment' | 'test' | 'reminder' | 'other';
+}
+
+export interface TodoFilter {
+  subjectId?: string;
+  priority?: 'high' | 'medium' | 'low';
+  category?: 'assignment' | 'test' | 'reminder' | 'other';
+  completed?: boolean;
+}

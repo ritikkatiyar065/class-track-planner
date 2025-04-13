@@ -12,7 +12,9 @@ import TimetablePage from "./pages/TimetablePage";
 import SubjectsPage from "./pages/SubjectsPage";
 import StatsPage from "./pages/StatsPage";
 import SettingsPage from "./pages/SettingsPage";
+import TodoPage from "./pages/TodoPage";
 import { FineProvider } from "./contexts/FineContext";
+import { TodoProvider } from "./contexts/TodoContext";
 
 const queryClient = new QueryClient();
 
@@ -20,22 +22,25 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <FineProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/subjects" element={<SubjectsPage />} />
-              <Route path="/subjects/:id" element={<SubjectDetail />} />
-              <Route path="/timetable" element={<TimetablePage />} />
-              <Route path="/stats" element={<StatsPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <TodoProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route element={<AppLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/subjects" element={<SubjectsPage />} />
+                <Route path="/subjects/:id" element={<SubjectDetail />} />
+                <Route path="/timetable" element={<TimetablePage />} />
+                <Route path="/stats" element={<StatsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/todo" element={<TodoPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TodoProvider>
       </FineProvider>
     </TooltipProvider>
   </QueryClientProvider>
