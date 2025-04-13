@@ -37,6 +37,7 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   });
 
+  // This function expects all required fields to be present
   const addTodo = (todo: Omit<TodoItem, 'id' | 'createdAt'>) => {
     const newTodo = {
       ...todo,

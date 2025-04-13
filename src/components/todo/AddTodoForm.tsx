@@ -63,8 +63,12 @@ const AddTodoForm: React.FC<AddTodoFormProps> = ({ onAdd, onCancel }) => {
   });
 
   const onSubmit = (values: FormValues) => {
+    // Fix: Explicitly specify all required properties
     addTodo({
       ...values,
+      title: values.title, // Explicitly include required fields
+      priority: values.priority,
+      category: values.category,
       completed: false,
     });
     onAdd();
