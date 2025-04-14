@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockSubjects } from "@/data/mockData";
@@ -82,7 +81,7 @@ const StatsPage = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={attendanceData} layout="vertical">
+              <BarChart data={attendanceData} layout="vertical" barSize={15}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                 <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={50} />
