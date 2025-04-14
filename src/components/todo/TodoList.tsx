@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TodoItem } from '@/types';
 import { useTodo } from '@/contexts/TodoContext';
@@ -6,17 +5,22 @@ import { format, isPast, isTomorrow, isToday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Calendar, AlertTriangle, CheckSquare } from 'lucide-react';
+import { Pencil, Trash2, Calendar, AlertTriangle, CheckSquare, PlusCircle, Archive } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import TodoEditDialog from './TodoEditDialog';
+import { Separator } from '@/components/ui/separator';
 
 interface TodoListProps {
   todos: TodoItem[];
+  onAddNewClick?: () => void;
 }
 
-const TodoList: React.FC<TodoListProps> = ({ todos }) => {
+const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
   const { toggleComplete, deleteTodo, getSubjectName, getSubjectColor } = useTodo();
+
+  const activeTasks = todos.filter(todo => !todo.completed);
+  const completedTasks = todos.filter(todo => todo.completed);
 
   const getPriorityColorClass = (priority: string) => {
     switch (priority) {
@@ -54,104 +58,147 @@ const TodoList: React.FC<TodoListProps> = ({ todos }) => {
     return { status: 'upcoming', label: format(dateObj, 'MMM d, yyyy'), className: 'text-muted-foreground' };
   };
 
-  return (
-    <div className="space-y-3">
-      {todos.map((todo) => {
-        const dateStatus = getDateStatus(todo.dueDate);
-        
-        return (
-          <Card 
-            key={todo.id} 
-            className={`transition-all hover:shadow ${todo.completed ? 'bg-muted/30' : ''}`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <div className="pt-1">
-                  <Checkbox 
-                    checked={todo.completed}
-                    onCheckedChange={() => toggleComplete(todo.id)}
-                    className="rounded-full"
-                  />
-                </div>
+  const renderTodoItem = (todo: TodoItem) => {
+    const dateStatus = getDateStatus(todo.dueDate);
+    
+    return (
+      <Card 
+        key={todo.id} 
+        className={`transition-all hover:shadow ${todo.completed ? 'bg-muted/30' : ''}`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <div className="pt-1">
+              <Checkbox 
+                checked={todo.completed}
+                onCheckedChange={() => toggleComplete(todo.id)}
+                className="rounded-full"
+              />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <h3 className={`font-medium truncate ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+                  {todo.title}
+                </h3>
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h3 className={`font-medium truncate ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
-                      {todo.title}
-                    </h3>
-                    
-                    {todo.subjectId && (
-                      <Badge 
-                        style={{ backgroundColor: getSubjectColor(todo.subjectId) + '20', 
-                                color: getSubjectColor(todo.subjectId),
-                                borderColor: getSubjectColor(todo.subjectId) + '40' }}
-                        className="border"
-                      >
-                        {getSubjectName(todo.subjectId)}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  {todo.description && (
-                    <p className={`text-sm ${todo.completed ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
-                      {todo.description}
-                    </p>
-                  )}
-                  
-                  <div className="flex flex-wrap items-center gap-2 mt-2">
-                    <Badge variant="outline" className={getPriorityColorClass(todo.priority)}>
-                      {todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1)} Priority
-                    </Badge>
-                    
-                    <Badge variant="outline" className={getCategoryColorClass(todo.category)}>
-                      {todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}
-                    </Badge>
-                    
-                    {todo.dueDate && dateStatus && (
-                      <div className={`text-xs flex items-center gap-1 ${dateStatus.className}`}>
-                        <Calendar className="h-3 w-3" />
-                        <span>{dateStatus.label}</span>
-                        {dateStatus.status === 'overdue' && !todo.completed && (
-                          <AlertTriangle className="h-3 w-3 text-destructive" />
-                        )}
-                      </div>
-                    )}
-                    
-                    {todo.completed && (
-                      <div className="text-xs flex items-center gap-1 text-success">
-                        <CheckSquare className="h-3 w-3" />
-                        <span>Completed</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-1 shrink-0">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Pencil className="h-4 w-4" />
-                        <span className="sr-only">Edit</span>
-                      </Button>
-                    </DialogTrigger>
-                    <TodoEditDialog todo={todo} />
-                  </Dialog>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => deleteTodo(todo.id)}
+                {todo.subjectId && (
+                  <Badge 
+                    style={{ backgroundColor: getSubjectColor(todo.subjectId) + '20', 
+                            color: getSubjectColor(todo.subjectId),
+                            borderColor: getSubjectColor(todo.subjectId) + '40' }}
+                    className="border"
                   >
-                    <Trash2 className="h-4 w-4" />
-                    <span className="sr-only">Delete</span>
-                  </Button>
-                </div>
+                    {getSubjectName(todo.subjectId)}
+                  </Badge>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+              
+              {todo.description && (
+                <p className={`text-sm ${todo.completed ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
+                  {todo.description}
+                </p>
+              )}
+              
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <Badge variant="outline" className={getPriorityColorClass(todo.priority)}>
+                  {todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1)} Priority
+                </Badge>
+                
+                <Badge variant="outline" className={getCategoryColorClass(todo.category)}>
+                  {todo.category.charAt(0).toUpperCase() + todo.category.slice(1)}
+                </Badge>
+                
+                {todo.dueDate && dateStatus && (
+                  <div className={`text-xs flex items-center gap-1 ${dateStatus.className}`}>
+                    <Calendar className="h-3 w-3" />
+                    <span>{dateStatus.label}</span>
+                    {dateStatus.status === 'overdue' && !todo.completed && (
+                      <AlertTriangle className="h-3 w-3 text-destructive" />
+                    )}
+                  </div>
+                )}
+                
+                {todo.completed && (
+                  <div className="text-xs flex items-center gap-1 text-success">
+                    <CheckSquare className="h-3 w-3" />
+                    <span>Completed</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1 shrink-0">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                </DialogTrigger>
+                <TodoEditDialog todo={todo} />
+              </Dialog>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => deleteTodo(todo.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Delete</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  if (todos.length === 0) {
+    return (
+      <div className="text-center py-12 border rounded-lg bg-muted/20">
+        <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h3 className="font-medium text-lg">No tasks found</h3>
+        <p className="text-muted-foreground mb-4">Add your first task to get started</p>
+        <Button onClick={onAddNewClick}>
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add Task
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        {activeTasks.length > 0 ? (
+          activeTasks.map(renderTodoItem)
+        ) : (
+          <div className="text-center py-8 space-y-4">
+            <h3 className="text-xl font-semibold">Hustlers don't stop! 💪</h3>
+            <p className="text-muted-foreground">All tasks completed. Ready for more challenges?</p>
+            <Button onClick={onAddNewClick}>
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Add more tasks
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {completedTasks.length > 0 && (
+        <>
+          <div className="flex items-center gap-2 pt-6">
+            <Archive className="h-5 w-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Completed Tasks</h2>
+            <Badge variant="secondary">{completedTasks.length}</Badge>
+          </div>
+          <Separator />
+          <div className="space-y-3">
+            {completedTasks.map(renderTodoItem)}
+          </div>
+        </>
+      )}
     </div>
   );
 };

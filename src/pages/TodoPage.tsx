@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTodo } from '@/contexts/TodoContext';
 import TodoList from '@/components/todo/TodoList';
@@ -114,7 +113,10 @@ const TodoPage = () => {
         <TodoFilters />
       </div>
       
-      <TodoList todos={filteredTodos} />
+      <TodoList 
+        todos={filteredTodos} 
+        onAddNewClick={() => setShowAddForm(true)}
+      />
       
       {filteredTodos.length === 0 && (
         <div className="text-center py-12 border rounded-lg bg-muted/20">
