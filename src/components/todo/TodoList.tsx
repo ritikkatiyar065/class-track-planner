@@ -148,7 +148,8 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
     );
   };
 
-  if (todos.length === 0 || activeTasks.length === 0) {
+  // If there are no tasks at all
+  if (todos.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg bg-muted/20">
         <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -162,19 +163,24 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
     );
   }
 
+  // If there are tasks, but all are completed
+  if (activeTasks.length === 0) {
+    return (
+      <div className="text-center py-8 space-y-4">
+        <h3 className="text-xl font-semibold">Hustlers don't stop! 💪</h3>
+        <p className="text-muted-foreground">All tasks completed. Ready for more challenges?</p>
+        <Button onClick={onAddNewClick}>
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add more tasks
+        </Button>
+      </div>
+    );
+  }
+
+  // If there are active tasks
   return (
     <div className="space-y-3">
       {activeTasks.map(renderTodoItem)}
-      {activeTasks.length === 0 && (
-        <div className="text-center py-8 space-y-4">
-          <h3 className="text-xl font-semibold">Hustlers don't stop! 💪</h3>
-          <p className="text-muted-foreground">All tasks completed. Ready for more challenges?</p>
-          <Button onClick={onAddNewClick}>
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Add more tasks
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
