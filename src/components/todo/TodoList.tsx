@@ -6,11 +6,10 @@ import { format, isPast, isTomorrow, isToday } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Calendar, AlertTriangle, CheckSquare, PlusCircle, Archive, ListTodo } from 'lucide-react';
+import { Pencil, Trash2, Calendar, AlertTriangle, CheckSquare, PlusCircle, ListTodo } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import TodoEditDialog from './TodoEditDialog';
-import { Separator } from '@/components/ui/separator';
 
 interface TodoListProps {
   todos: TodoItem[];
@@ -20,8 +19,8 @@ interface TodoListProps {
 const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
   const { toggleComplete, deleteTodo, getSubjectName, getSubjectColor } = useTodo();
 
+  // Only show active (non-completed) tasks
   const activeTasks = todos.filter(todo => !todo.completed);
-  const completedTasks = todos.filter(todo => todo.completed);
 
   const getPriorityColorClass = (priority: string) => {
     switch (priority) {
@@ -65,7 +64,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
     return (
       <Card 
         key={todo.id} 
-        className={`transition-all hover:shadow ${todo.completed ? 'bg-muted/30' : ''}`}
+        className="transition-all hover:shadow"
       >
         <CardContent className="p-4">
           <div className="flex items-start gap-3">
@@ -79,7 +78,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <h3 className={`font-medium truncate ${todo.completed ? 'line-through text-muted-foreground' : ''}`}>
+                <h3 className="font-medium truncate">
                   {todo.title}
                 </h3>
                 
@@ -96,7 +95,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
               </div>
               
               {todo.description && (
-                <p className={`text-sm ${todo.completed ? 'text-muted-foreground/70' : 'text-muted-foreground'}`}>
+                <p className="text-sm text-muted-foreground">
                   {todo.description}
                 </p>
               )}
@@ -114,16 +113,9 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
                   <div className={`text-xs flex items-center gap-1 ${dateStatus.className}`}>
                     <Calendar className="h-3 w-3" />
                     <span>{dateStatus.label}</span>
-                    {dateStatus.status === 'overdue' && !todo.completed && (
+                    {dateStatus.status === 'overdue' && (
                       <AlertTriangle className="h-3 w-3 text-destructive" />
                     )}
-                  </div>
-                )}
-                
-                {todo.completed && (
-                  <div className="text-xs flex items-center gap-1 text-success">
-                    <CheckSquare className="h-3 w-3" />
-                    <span>Completed</span>
                   </div>
                 )}
               </div>
@@ -156,7 +148,7 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
     );
   };
 
-  if (todos.length === 0) {
+  if (todos.length === 0 || activeTasks.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg bg-muted/20">
         <ListTodo className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -171,34 +163,17 @@ const TodoList: React.FC<TodoListProps> = ({ todos, onAddNewClick }) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        {activeTasks.length > 0 ? (
-          activeTasks.map(renderTodoItem)
-        ) : (
-          <div className="text-center py-8 space-y-4">
-            <h3 className="text-xl font-semibold">Hustlers don't stop! 💪</h3>
-            <p className="text-muted-foreground">All tasks completed. Ready for more challenges?</p>
-            <Button onClick={onAddNewClick}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add more tasks
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {completedTasks.length > 0 && (
-        <>
-          <div className="flex items-center gap-2 pt-6">
-            <Archive className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Completed Tasks</h2>
-            <Badge variant="secondary">{completedTasks.length}</Badge>
-          </div>
-          <Separator />
-          <div className="space-y-3">
-            {completedTasks.map(renderTodoItem)}
-          </div>
-        </>
+    <div className="space-y-3">
+      {activeTasks.map(renderTodoItem)}
+      {activeTasks.length === 0 && (
+        <div className="text-center py-8 space-y-4">
+          <h3 className="text-xl font-semibold">Hustlers don't stop! 💪</h3>
+          <p className="text-muted-foreground">All tasks completed. Ready for more challenges?</p>
+          <Button onClick={onAddNewClick}>
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add more tasks
+          </Button>
+        </div>
       )}
     </div>
   );
