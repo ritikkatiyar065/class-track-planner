@@ -24,14 +24,14 @@ const FormSubject: React.FC<FormSubjectProps> = ({ form, subjects }) => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>Subject (Optional)</FormLabel>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <Select onValueChange={field.onChange} value={field.value || "none"}>
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder="Select a subject" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              <SelectItem value="">General (No subject)</SelectItem>
+              <SelectItem value="none">General (No subject)</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name}

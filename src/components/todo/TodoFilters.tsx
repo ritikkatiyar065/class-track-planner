@@ -60,14 +60,14 @@ const TodoFilters = () => {
               </div>
               
               <Select 
-                value={filters.subjectId || ''} 
-                onValueChange={(value) => setFilters({ ...filters, subjectId: value || undefined })}
+                value={filters.subjectId || 'all-subjects'} 
+                onValueChange={(value) => setFilters({ ...filters, subjectId: value === 'all-subjects' ? undefined : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Subjects" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Subjects</SelectItem>
+                  <SelectItem value="all-subjects">All Subjects</SelectItem>
                   {subjects.map((subject) => (
                     <SelectItem key={subject.id} value={subject.id}>
                       {subject.name}
@@ -84,14 +84,14 @@ const TodoFilters = () => {
               </div>
               
               <Select 
-                value={filters.priority || ''} 
-                onValueChange={(value) => setFilters({ ...filters, priority: value as any || undefined })}
+                value={filters.priority || 'all-priorities'} 
+                onValueChange={(value) => setFilters({ ...filters, priority: value === 'all-priorities' ? undefined : value as any })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Priorities</SelectItem>
+                  <SelectItem value="all-priorities">All Priorities</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
@@ -106,14 +106,14 @@ const TodoFilters = () => {
               </div>
               
               <Select 
-                value={filters.category || ''} 
-                onValueChange={(value) => setFilters({ ...filters, category: value as any || undefined })}
+                value={filters.category || 'all-categories'} 
+                onValueChange={(value) => setFilters({ ...filters, category: value === 'all-categories' ? undefined : value as any })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Categories</SelectItem>
+                  <SelectItem value="all-categories">All Categories</SelectItem>
                   <SelectItem value="assignment">Assignment</SelectItem>
                   <SelectItem value="test">Test</SelectItem>
                   <SelectItem value="reminder">Reminder</SelectItem>
