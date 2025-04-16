@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockSubjects } from "@/data/mockData";
 import { Subject } from "@/types";
-import { calculateAttendanceStats } from "@/utils/attendanceUtils";
+import { calculateAttendanceStats, formatAttendancePercentage } from "@/utils/attendanceUtils";
 import {
   BarChart,
   Bar,
@@ -26,7 +26,7 @@ const StatsPage = () => {
     const stats = calculateAttendanceStats(subject);
     return {
       name: subject.code,
-      current: stats.currentPercentage,
+      current: parseFloat(stats.currentPercentage.toFixed(1)),
       target: subject.targetAttendance,
     };
   });
@@ -81,15 +81,15 @@ const StatsPage = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={attendanceData} layout="vertical" barSize={15}>
+              <BarChart data={attendanceData} barSize={15}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                <XAxis type="number" domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 12 }} width={50} />
-                <Tooltip formatter={(value) => [formatValue(value)]} />
+                <XAxis dataKey="name" />
+                <YAxis domain={[0, 100]} tickFormatter={(value) => `${value}%`} />
+                <Tooltip formatter={(value) => [`${value}%`]} />
                 <Legend />
-                <ReferenceLine x={75} stroke="#FF5722" label={{ value: 'Min. Required', position: 'insideBottomRight', fill: '#888' }} />
-                <Bar dataKey="current" name="Current Attendance" fill="#3F51B5" radius={[0, 4, 4, 0]} />
-                <Bar dataKey="target" name="Target" fill="#FF5722" radius={[0, 4, 4, 0]} />
+                <ReferenceLine y={75} stroke="#FF5722" label={{ value: 'Min. Required', position: 'insideBottomRight', fill: '#888' }} />
+                <Bar dataKey="current" name="Current Attendance" fill="#3F51B5" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="target" name="Target" fill="#FF5722" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -140,6 +140,7 @@ const StatsPage = () => {
                   <th className="text-right p-2">Current %</th>
                   <th className="text-right p-2">Classes Attended</th>
                   <th className="text-right p-2">Status</th>
+                  <th className="text-right p-2">Safe to Bunk</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,7 +151,12 @@ const StatsPage = () => {
                       <td className="p-2">{subject.name}</td>
                       <td className="p-2">{subject.code}</td>
                       <td className="text-right p-2">{subject.targetAttendance}%</td>
-                      <td className="text-right p-2">{stats.currentPercentage.toFixed(1)}%</td>
+                      <td className="text-right p-2">
+                        {stats.currentPercentage.toFixed(1)}% 
+                        <span className="ml-1" title="Attendance Status">
+                          {stats.emoji}
+                        </span>
+                      </td>
                       <td className="text-right p-2">{subject.attendedClasses} / {subject.totalClasses}</td>
                       <td className="text-right p-2">
                         <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
@@ -166,6 +172,17 @@ const StatsPage = () => {
                               ? 'At Risk' 
                               : 'Below Target'}
                         </span>
+                      </td>
+                      <td className="text-right p-2">
+                        {stats.canMissClasses > 0 ? (
+                          <span className="text-success">
+                            Can miss {stats.canMissClasses} {stats.canMissClasses === 1 ? 'class' : 'classes'}
+                          </span>
+                        ) : (
+                          <span className="text-destructive">
+                            Need to attend {stats.classesNeeded} more
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );

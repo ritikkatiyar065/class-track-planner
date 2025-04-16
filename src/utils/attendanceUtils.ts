@@ -10,6 +10,7 @@ export const calculateAttendanceStats = (subject: {
   classesNeeded: number;
   canMissClasses: number;
   status: 'on-track' | 'at-risk' | 'below-target';
+  emoji: string;
 } => {
   const { attendedClasses, totalClasses, targetAttendance } = subject;
   
@@ -26,10 +27,11 @@ export const calculateAttendanceStats = (subject: {
   const classesNeeded = Math.max(0, totalNeededToAttend - attendedClasses);
   
   // Calculate how many classes can be missed while still meeting target
-  const canMissClasses = Math.max(0, totalClasses - totalNeededToAttend);
+  const canMissClasses = Math.max(0, attendedClasses - totalNeededToAttend);
   
   // Determine status
   let status: 'on-track' | 'at-risk' | 'below-target';
+  let emoji: string;
   
   if (currentPercentage >= targetPercentage) {
     status = 'on-track';
@@ -39,12 +41,24 @@ export const calculateAttendanceStats = (subject: {
     status = 'below-target';
   }
   
+  // Determine emoji based on attendance range
+  if (currentPercentage >= 90) {
+    emoji = '🏆';
+  } else if (currentPercentage >= 80) {
+    emoji = '👍';
+  } else if (currentPercentage >= 75) {
+    emoji = '🙂';
+  } else {
+    emoji = '⚠️';
+  }
+  
   return {
     currentPercentage,
     targetPercentage,
     classesNeeded,
     canMissClasses,
-    status
+    status,
+    emoji
   };
 };
 

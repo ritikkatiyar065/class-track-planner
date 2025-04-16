@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen, CheckSquare } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FineNotification from "./FineNotification";
+import Footer from "./Footer";
 
 const AppLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -140,6 +141,8 @@ const AppLayout = () => {
           <Outlet />
         </main>
       </div>
+      
+      <Footer />
     </div>
   );
 };
