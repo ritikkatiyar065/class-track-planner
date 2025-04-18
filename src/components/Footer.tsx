@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Github, Linkedin, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -9,8 +10,35 @@ const Footer = () => {
         <div className="flex items-center gap-1">
           Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by Ritik | Crafted in Noida
         </div>
-        <div>
-          © The Ritik Katiyar Production
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex items-center gap-4">
+            <a 
+              href="https://github.com/ritik" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1"
+            >
+              <Github className="h-4 w-4" />
+              <span className="sr-only md:not-sr-only">GitHub</span>
+            </a>
+            <a 
+              href="https://linkedin.com/in/ritik" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1"
+            >
+              <Linkedin className="h-4 w-4" />
+              <span className="sr-only md:not-sr-only">LinkedIn</span>
+            </a>
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+          </div>
+          <div>
+            © The Ritik Katiyar Production
+          </div>
         </div>
       </div>
     </footer>

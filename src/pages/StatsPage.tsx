@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mockSubjects } from "@/data/mockData";
@@ -31,30 +32,31 @@ const StatsPage = () => {
     };
   });
   
-  // Create data for pie chart
-  const statusData = [
-    {
-      name: "On Track",
-      value: subjects.filter(subject => {
-        const stats = calculateAttendanceStats(subject);
-        return stats.status === "on-track";
-      }).length,
-    },
-    {
-      name: "At Risk",
-      value: subjects.filter(subject => {
-        const stats = calculateAttendanceStats(subject);
-        return stats.status === "at-risk";
-      }).length,
-    },
-    {
-      name: "Below Target",
-      value: subjects.filter(subject => {
-        const stats = calculateAttendanceStats(subject);
-        return stats.status === "below-target";
-      }).length,
-    },
-  ].filter(item => item.value > 0);
+  // Create data for pie chart - Fix: Filter before creating the data array
+  const statusData = subjects.reduce((acc, subject) => {
+    const stats = calculateAttendanceStats(subject);
+    const status = stats.status === "on-track" 
+      ? "On Track" 
+      : stats.status === "at-risk" 
+        ? "At Risk" 
+        : "Below Target";
+    
+    // Find if this status already exists in our accumulator
+    const existingStatusIndex = acc.findIndex(item => item.name === status);
+    
+    if (existingStatusIndex !== -1) {
+      // If it exists, increment the count
+      acc[existingStatusIndex].value += 1;
+    } else {
+      // If it doesn't exist, add a new entry
+      acc.push({
+        name: status,
+        value: 1
+      });
+    }
+    
+    return acc;
+  }, [] as { name: string; value: number }[]);
   
   // Colors for pie chart
   const COLORS = ["#4CAF50", "#FFC107", "#F44336"];
@@ -103,12 +105,15 @@ const StatsPage = () => {
             <div className="w-64">
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Tooltip formatter={(value) => [`${value} ${value === 1 ? 'subject' : 'subjects'}`]} />
+                  <Tooltip 
+                    formatter={(value) => [`${value} ${value === 1 ? 'subject' : 'subjects'}`]} 
+                    contentStyle={{ background: 'var(--background)', borderRadius: '6px', border: '1px solid var(--border)' }}
+                  />
                   <Pie
                     data={statusData}
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
+                    labelLine={true}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
