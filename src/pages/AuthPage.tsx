@@ -1,8 +1,9 @@
+
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, BookOpen } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -11,29 +12,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BookOpen } from "lucide-react";
 import AnimatedBackground from "@/components/AnimatedBackground";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { signIn, signUp, resetPassword } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      await signIn(email, password);
-    } else {
-      await signUp(email, password);
-    }
-  };
-
-  const handleForgotPassword = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (email) {
-      await resetPassword(email);
+    setIsLoading(true);
+    
+    try {
+      if (isLogin) {
+        await signIn(email, password);
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+        navigate("/dashboard");
+      } else {
+        await signUp(email, password);
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "An error occurred during authentication.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -44,14 +63,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <AnimatedBackground />
-      <Card className="w-full max-w-md border-gray-700 bg-gray-800/30 backdrop-blur-md shadow-xl animate-fade-in relative">
+      <Card className="w-full max-w-md border-gray-800 bg-gray-900/70 backdrop-blur-sm shadow-xl">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-primary/20 text-primary-foreground p-3 rounded-lg animate-pulse-soft">
+            <div className="bg-primary/10 text-primary p-3 rounded-lg">
               <BookOpen className="h-6 w-6" />
             </div>
           </div>
-          <CardTitle className="text-2xl bg-gradient-to-r from-white via-gray-300 to-gray-400 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl text-white">
             {isLogin ? "Welcome back" : "Create an account"}
           </CardTitle>
           <CardDescription className="text-gray-400">
@@ -73,7 +92,8 @@ export default function AuthPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400"
+                className="bg-gray-800/50 border-gray-700 text-white placeholder:text-gray-500"
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -87,7 +107,8 @@ export default function AuthPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-gray-700/50 border-gray-600 text-white pr-10 placeholder:text-gray-400"
+                  className="bg-gray-800/50 border-gray-700 text-white pr-10 placeholder:text-gray-500"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -106,29 +127,26 @@ export default function AuthPage() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full bg-primary/80 hover:bg-primary transition-colors"
+              className="w-full bg-primary hover:bg-primary/90 transition-colors"
+              disabled={isLoading}
             >
-              {isLogin ? "Sign In" : "Sign Up"}
-            </Button>
-            <div className="flex flex-col items-center gap-2 text-sm">
-              {isLogin && (
-                <button
-                  onClick={handleForgotPassword}
-                  className="text-primary/80 hover:text-primary transition-colors"
-                >
-                  Forgot password?
-                </button>
+              {isLoading ? (
+                "Please wait..."
+              ) : isLogin ? (
+                "Sign In"
+              ) : (
+                "Sign Up"
               )}
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-gray-400 hover:text-gray-200 transition-colors"
-              >
-                {isLogin
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
-              </button>
-            </div>
+            </Button>
+            <button
+              type="button"
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            >
+              {isLogin
+                ? "Don't have an account? Sign up"
+                : "Already have an account? Sign in"}
+            </button>
           </CardFooter>
         </form>
       </Card>
