@@ -1,27 +1,26 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
 import { cn } from "@/lib/utils";
-import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen, CheckSquare } from "lucide-react";
+import { Home, BarChart3, Calendar, Settings, Menu, X, BookOpen, CheckSquare, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import FineNotification from "./FineNotification";
 import Footer from "./Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AppLayout = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { signOut } = useAuth();
   
   useEffect(() => {
-    // Close menu when changing routes on mobile
     if (isMobile && isMenuOpen) {
       setIsMenuOpen(false);
     }
   }, [location.pathname, isMobile]);
   
-  // Close menu when clicking outside on mobile
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -68,12 +67,20 @@ const AppLayout = () => {
           
           <div className="flex items-center gap-2">
             <ModeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={signOut}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogOut className="h-5 w-5" />
+              <span className="sr-only">Log out</span>
+            </Button>
           </div>
         </div>
       </header>
       
       <div className="flex-1 flex">
-        {/* Sidebar - desktop only */}
         <nav className="w-64 border-r hidden md:block p-4">
           <div className="space-y-1 pt-2">
             {navItems.map((item) => (
@@ -92,7 +99,6 @@ const AppLayout = () => {
           </div>
         </nav>
         
-        {/* Mobile menu */}
         {isMenuOpen && (
           <div className="mobile-menu fixed inset-0 z-50 md:hidden">
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
@@ -133,7 +139,6 @@ const AppLayout = () => {
           </div>
         )}
         
-        {/* Main content */}
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto px-4 pt-4">
             <FineNotification />

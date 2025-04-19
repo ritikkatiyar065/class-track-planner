@@ -15,33 +15,45 @@ import SettingsPage from "./pages/SettingsPage";
 import TodoPage from "./pages/TodoPage";
 import { FineProvider } from "./contexts/FineContext";
 import { TodoProvider } from "./contexts/TodoContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import AuthPage from "./pages/AuthPage";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <FineProvider>
-        <TodoProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route element={<AppLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/subjects" element={<SubjectsPage />} />
-                <Route path="/subjects/:id" element={<SubjectDetail />} />
-                <Route path="/timetable" element={<TimetablePage />} />
-                <Route path="/stats" element={<StatsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="/todo" element={<TodoPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TodoProvider>
-      </FineProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <FineProvider>
+            <TodoProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/login" element={<AuthPage />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout />
+                    </ProtectedRoute>
+                  }
+                >
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/subjects" element={<SubjectsPage />} />
+                  <Route path="/subjects/:id" element={<SubjectDetail />} />
+                  <Route path="/timetable" element={<TimetablePage />} />
+                  <Route path="/stats" element={<StatsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="/todo" element={<TodoPage />} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </TodoProvider>
+          </FineProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
