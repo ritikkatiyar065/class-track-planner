@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AnimatedBackground from "@/components/AnimatedBackground";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
@@ -24,7 +24,11 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  // Check for redirect destination
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +41,8 @@ export default function AuthPage() {
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
-        navigate("/dashboard");
+        // Using navigate with replace to prevent back navigation to login page
+        navigate("/dashboard", { replace: true });
       } else {
         await signUp(email, password);
         toast({

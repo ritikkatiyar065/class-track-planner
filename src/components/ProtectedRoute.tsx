@@ -7,6 +7,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   if (!user) {
+    // Save the attempted URL for redirection after login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
