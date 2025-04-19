@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BookOpen } from "lucide-react";
+import AnimatedBackground from "@/components/AnimatedBackground";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,8 +42,9 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <Card className="w-full max-w-md border-gray-700 bg-gray-800/50 backdrop-blur-sm animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <AnimatedBackground />
+      <Card className="w-full max-w-md border-gray-700 bg-gray-800/30 backdrop-blur-md shadow-xl animate-fade-in relative">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-primary/20 text-primary-foreground p-3 rounded-lg animate-pulse-soft">
