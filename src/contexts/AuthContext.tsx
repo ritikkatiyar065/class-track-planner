@@ -24,15 +24,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    // First set up the auth state listener (to catch future changes)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed", _event, session?.user?.id);
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
+
+    // Then check for an existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check", session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
@@ -42,17 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully logged in.",
-      });
-      navigate("/dashboard");
+      
+      // Successful login toast is now handled in the useEffect that detects the auth state change
+      // The navigation will happen in the AuthPage component when the user state updates
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+      throw error; // Re-throw to be caught by the component
     }
   };
 
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: "Error",
         description: error.message,
       });
+      throw error; // Re-throw to be caught by the component
     }
   };
 

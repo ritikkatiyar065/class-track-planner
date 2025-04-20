@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +22,20 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { user, signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
-  // Check for redirect destination
+  // Get the path the user was trying to access
   const from = location.state?.from?.pathname || "/dashboard";
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +48,7 @@ export default function AuthPage() {
           title: "Welcome back!",
           description: "You've successfully signed in.",
         });
-        // Using navigate with replace to prevent back navigation to login page
-        navigate("/dashboard", { replace: true });
+        // Navigation will happen in the useEffect when user state updates
       } else {
         await signUp(email, password);
         toast({
