@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -24,15 +23,13 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, resetPassword } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
-  // Get the path the user was trying to access
   const from = location.state?.from?.pathname || "/dashboard";
 
-  // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
       navigate(from, { replace: true });
@@ -70,6 +67,22 @@ export default function AuthPage() {
         title: "Error",
         description: error.message,
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      await resetPassword(email);
+      toast({
+        title: "Reset link sent",
+        description: "Please check your email for the password reset link.",
+      });
+    } catch (error: any) {
+      console.error("Reset password error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -140,13 +153,24 @@ export default function AuthPage() {
                   </button>
                 </div>
               </div>
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 transition-colors"
-                disabled={isLoading}
-              >
-                {isLoading ? "Please wait..." : "Sign In"}
-              </Button>
+              <div className="flex flex-col gap-4">
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90 transition-colors"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Please wait..." : "Sign In"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="text-sm text-gray-400 hover:text-gray-200"
+                  onClick={handleForgotPassword}
+                  disabled={isLoading || !email}
+                >
+                  Forgot Password?
+                </Button>
+              </div>
             </form>
           ) : (
             <RegisterForm onSubmit={handleRegister} isLoading={isLoading} />
