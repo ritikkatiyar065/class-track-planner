@@ -12,33 +12,47 @@ import { useEffect, useState } from "react";
 export function ModeToggle() {
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
 
-  // Function to set the theme
+  // Function to set the theme and apply it immediately
   const setMode = (mode: "light" | "dark" | "system") => {
     setTheme(mode);
     localStorage.setItem("theme", mode);
 
+    // Apply theme immediately
+    const root = document.documentElement;
     if (mode === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
-      document.documentElement.classList.toggle("dark", systemTheme === "dark");
+      root.classList.remove("light", "dark");
+      root.classList.add(systemTheme);
     } else {
-      document.documentElement.classList.toggle("dark", mode === "dark");
+      root.classList.remove("light", "dark");
+      root.classList.add(mode);
     }
   };
 
   // Initialize theme from localStorage or default to system
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null;
-    
     if (savedTheme) {
-      setTheme(savedTheme);
       setMode(savedTheme);
     } else {
-      // Default to system
       setMode("system");
     }
   }, []);
+
+  // Add system theme change listener
+  useEffect(() => {
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (e: MediaQueryListEvent) => {
+        document.documentElement.classList.toggle("dark", e.matches);
+      };
+      
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
+  }, [theme]);
 
   return (
     <DropdownMenu>

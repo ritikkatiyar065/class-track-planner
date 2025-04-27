@@ -10,6 +10,9 @@ const Footer = () => {
         <div className="flex items-center gap-1">
           Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by Ritik | Crafted in Noida
         </div>
+        <div>
+          © The Ritik Katiyar Production
+        </div>
         <div className="flex items-center justify-center gap-6">
           <a 
             href="https://github.com/ritik" 
@@ -29,9 +32,6 @@ const Footer = () => {
             <Linkedin className="h-5 w-5" />
             <span className="sr-only md:not-sr-only">LinkedIn</span>
           </a>
-        </div>
-        <div>
-          © The Ritik Katiyar Production
         </div>
         <div className="flex items-center gap-3 text-xs">
           <Link to="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>

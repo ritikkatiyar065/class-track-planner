@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,12 +15,10 @@ const Dashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const navigate = useNavigate();
   
-  // Calculate overall attendance percentage
   const totalAttended = subjects.reduce((sum, subject) => sum + subject.attendedClasses, 0);
   const totalClasses = subjects.reduce((sum, subject) => sum + subject.totalClasses, 0);
   const overallAttendance = totalClasses > 0 ? (totalAttended / totalClasses) * 100 : 0;
   
-  // Count subjects at risk
   const subjectsAtRisk = subjects.filter(subject => {
     const stats = calculateAttendanceStats(subject);
     return stats.status === 'at-risk' || stats.status === 'below-target';
@@ -34,6 +31,12 @@ const Dashboard = () => {
   
   const handleSubjectClick = (subject: Subject) => {
     navigate(`/subjects/${subject.id}`);
+  };
+
+  const getAttendanceColor = (percentage: number): string => {
+    if (percentage >= 75) return "bg-success";
+    if (percentage >= 65) return "bg-warning";
+    return "bg-destructive";
   };
 
   return (
@@ -70,7 +73,7 @@ const Dashboard = () => {
                 <Progress
                   value={overallAttendance}
                   className="h-2 mt-2"
-                  indicatorClassName={overallAttendance >= 75 ? "bg-success" : "bg-warning"}
+                  indicatorClassName={getAttendanceColor(overallAttendance)}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   {totalAttended} of {totalClasses} classes attended
