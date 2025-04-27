@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Subject } from "@/types";
@@ -12,6 +11,7 @@ import AttendanceTracker from "@/components/AttendanceTracker";
 import { useToast } from "@/hooks/use-toast";
 import EditSubjectForm from "@/components/EditSubjectForm";
 import DeleteSubjectDialog from "@/components/DeleteSubjectDialog";
+import AttendanceHistory from "@/components/AttendanceHistory";
 
 const SubjectDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +24,6 @@ const SubjectDetail = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // In a real app, this would be a data fetch from API
     const foundSubject = mockSubjects.find((s) => s.id === id);
     
     if (foundSubject) {
@@ -32,7 +31,6 @@ const SubjectDetail = () => {
     }
     setLoading(false);
     
-    // Check if the edit parameter is in the URL
     if (searchParams.get('edit') === 'true') {
       setShowEditForm(true);
     }
@@ -53,7 +51,6 @@ const SubjectDetail = () => {
     
     setSubject(updatedSubject);
     
-    // In a real app, this would save to an API or local storage
     toast({
       title: "Attendance updated",
       description: `Your attendance for ${subject.name} is now ${updatedSubject.currentAttendance.toFixed(1)}%`,
@@ -70,7 +67,6 @@ const SubjectDetail = () => {
     setShowEditForm(false);
     setSearchParams({});
     
-    // In a real app, this would save to an API or local storage
     toast({
       title: "Subject updated",
       description: `${updatedSubject.name} has been updated.`,
@@ -84,14 +80,47 @@ const SubjectDetail = () => {
   const handleDeleteConfirm = () => {
     if (!subject) return;
     
-    // In a real app, this would delete from an API or local storage
     toast({
       title: "Subject deleted",
       description: `${subject.name} has been removed from your subjects.`,
     });
     
-    // Navigate back to subjects page
     navigate('/subjects');
+  };
+  
+  const requestNotificationPermission = async () => {
+    try {
+      if (!("Notification" in window)) {
+        toast({
+          title: "Notifications not supported",
+          description: "Your browser doesn't support notifications",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      
+      if (permission === "granted") {
+        toast({
+          title: "Notifications enabled",
+          description: "You will now receive class reminders",
+        });
+      } else {
+        toast({
+          title: "Notifications disabled",
+          description: "You won't receive class reminders",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
+      toast({
+        title: "Error",
+        description: "Could not request notification permission",
+        variant: "destructive",
+      });
+    }
   };
   
   if (loading) {
@@ -202,10 +231,13 @@ const SubjectDetail = () => {
             
             <TabsContent value="attendance-log" className="animate-fade-in">
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Attendance History</h2>
-                <p className="text-muted-foreground">
-                  This section will show your attendance history for this subject. This feature is part of the next update.
-                </p>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Attendance History</h2>
+                  <Button onClick={requestNotificationPermission} variant="outline">
+                    Enable Notifications
+                  </Button>
+                </div>
+                <AttendanceHistory subject={subject} />
               </div>
             </TabsContent>
           </Tabs>
@@ -226,7 +258,6 @@ const SubjectDetail = () => {
   );
 };
 
-// Importing the icons here to avoid conflicts
 import { BarChart3 } from "lucide-react";
 
 export default SubjectDetail;
