@@ -18,6 +18,7 @@ import { TodoProvider } from "./contexts/TodoContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
               <Sonner />
               <Routes>
                 <Route path="/login" element={<AuthPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route
                   element={
