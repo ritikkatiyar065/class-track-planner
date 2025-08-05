@@ -1,73 +1,54 @@
-# Welcome to your Lovable project
+# 📚 Student Attendance Tracker App
 
-## Project info
+A mobile-friendly attendance tracking app built with **Lovable** (React Native/Flutter/No-code), powered by **Supabase** as the backend. This app helps students monitor their attendance, track bunkable classes, calculate attendance percentages, and set attendance goals.
 
-**URL**: https://lovable.dev/projects/17ad328a-52a6-447a-a2f2-f9c5916cdd3c
+---
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+- ✅ Mark classes as **attended** or **missed**
+- 📊 Live **attendance percentage calculation**
+- 🎯 Set **target percentage** (e.g., 75%) and get warnings if you're falling short
+- 📆 Track **daily attendance logs**
+- 📎 View **total classes** and **attended classes** per subject
+- 📁 Backend powered by **Supabase** (PostgreSQL + REST API)
+- 📉 Calculate how many more classes you can miss (bunkable)
+- 💡 Clean and simple UI (built using Lovable)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/17ad328a-52a6-447a-a2f2-f9c5916cdd3c) and start prompting.
+## 🧩 Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+| Frontend        | Backend        | Database     |
+|----------------|----------------|--------------|
+| Lovable App     | Supabase REST API | Supabase (PostgreSQL) |
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🗃️ Database Schema (Supabase)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### `subjects` table
+| Column           | Type        | Description                      |
+|------------------|-------------|----------------------------------|
+| `id`             | UUID        | Primary key                      |
+| `name`           | TEXT        | Subject name                     |
+| `total_classes`  | INTEGER     | Total number of classes          |
+| `attended_classes` | INTEGER   | Number of classes attended       |
+| `target_percentage` | INTEGER | Desired attendance percentage    |
 
-Follow these steps:
+### `attendance_logs` table
+| Column     | Type     | Description                           |
+|------------|----------|---------------------------------------|
+| `id`       | UUID     | Primary key                           |
+| `subject_id` | UUID   | Foreign key to `subjects(id)`         |
+| `status`   | TEXT     | 'attended' or 'missed'                |
+| `date`     | DATE     | Date of the class                     |
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🛠️ Setup Instructions
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/17ad328a-52a6-447a-a2f2-f9c5916cdd3c) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes it is!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. **Clone the project** (if using a code version):
+   ```bash
+   git clone https://github.com/your-username/attendance-tracker-app.git
+   cd attendance-tracker-app
