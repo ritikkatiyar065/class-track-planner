@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Subject } from "@/types";
-import { mockSubjects } from "@/data/mockData";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,39 +23,86 @@ const SubjectDetail = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   useEffect(() => {
-    const foundSubject = mockSubjects.find((s) => s.id === id);
-    
-    if (foundSubject) {
-      setSubject(foundSubject);
-    }
-    setLoading(false);
+    const fetchSubject = async () => {
+      if (!user || !id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('subjects')
+          .select('*')
+          .eq('id', id)
+          .eq('user_id', user.id)
+          .single();
+          
+        if (error) throw error;
+        
+        if (data) {
+          // Transform the data to match our Subject type
+          const transformedSubject: Subject = {
+            id: data.id,
+            name: data.name,
+            code: data.name, // Using name as code for now
+            instructor: '', // Not in our schema yet
+            attendedClasses: data.attended_classes,
+            totalClasses: data.total_classes,
+            currentAttendance: data.total_classes > 0 ? (data.attended_classes / data.total_classes) * 100 : 0,
+            targetAttendance: data.target_attendance || 75,
+          };
+          setSubject(transformedSubject);
+        }
+      } catch (error) {
+        console.error('Error fetching subject:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load subject details",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubject();
     
     if (searchParams.get('edit') === 'true') {
       setShowEditForm(true);
     }
-  }, [id, searchParams]);
+  }, [id, searchParams, user]);
   
-  const handleAttendanceUpdate = (attended: boolean) => {
-    if (!subject) return;
+  const handleAttendanceUpdate = async (attended: boolean) => {
+    if (!subject || !user) return;
     
-    const updatedSubject = { ...subject };
-    
-    if (attended) {
-      updatedSubject.attendedClasses += 1;
+    try {
+      // Fetch updated subject data from database after the trigger has updated it
+      const { data, error } = await supabase
+        .from('subjects')
+        .select('*')
+        .eq('id', subject.id)
+        .eq('user_id', user.id)
+        .single();
+        
+      if (error) throw error;
+      
+      if (data) {
+        const updatedSubject: Subject = {
+          ...subject,
+          attendedClasses: data.attended_classes,
+          totalClasses: data.total_classes,
+          currentAttendance: data.total_classes > 0 ? (data.attended_classes / data.total_classes) * 100 : 0,
+        };
+        setSubject(updatedSubject);
+        
+        toast({
+          title: "Attendance updated",
+          description: `Your attendance for ${subject.name} is now ${updatedSubject.currentAttendance.toFixed(1)}%`,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating subject data:', error);
     }
-    
-    updatedSubject.totalClasses += 1;
-    updatedSubject.currentAttendance = 
-      (updatedSubject.attendedClasses / updatedSubject.totalClasses) * 100;
-    
-    setSubject(updatedSubject);
-    
-    toast({
-      title: "Attendance updated",
-      description: `Your attendance for ${subject.name} is now ${updatedSubject.currentAttendance.toFixed(1)}%`,
-    });
   };
   
   const handleEditClick = () => {

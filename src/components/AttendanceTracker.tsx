@@ -11,6 +11,8 @@ import { ClassSession, Subject } from "@/types";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AttendanceTrackerProps {
   subject: Subject;
@@ -20,14 +22,52 @@ interface AttendanceTrackerProps {
 const AttendanceTracker = ({ subject, onAttendanceUpdate }: AttendanceTrackerProps) => {
   const [date, setDate] = useState<Date>(new Date());
   const [attended, setAttended] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleAttendanceSubmit = () => {
-    onAttendanceUpdate(attended);
-    toast({
-      title: "Attendance recorded!",
-      description: `Marked as ${attended ? 'present' : 'absent'} for ${subject.name} on ${format(date, 'PPP')}`,
-    });
+  const handleAttendanceSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to record attendance",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Insert attendance log
+      const { error } = await supabase
+        .from('attendance_logs')
+        .insert({
+          user_id: user.id,
+          subject_id: subject.id,
+          date: format(date, 'yyyy-MM-dd'),
+          status: attended ? 'attended' : 'missed',
+        });
+
+      if (error) throw error;
+
+      // Call the original update function for UI state
+      onAttendanceUpdate(attended);
+      
+      toast({
+        title: "Attendance recorded!",
+        description: `Marked as ${attended ? 'present' : 'absent'} for ${subject.name} on ${format(date, 'PPP')}`,
+      });
+    } catch (error) {
+      console.error('Error recording attendance:', error);
+      toast({
+        title: "Error",
+        description: "Failed to record attendance. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,9 +119,9 @@ const AttendanceTracker = ({ subject, onAttendanceUpdate }: AttendanceTrackerPro
           </div>
         </div>
         
-        <Button onClick={handleAttendanceSubmit} className="w-full">
+        <Button onClick={handleAttendanceSubmit} className="w-full" disabled={isLoading}>
           <Plus className="mr-2 h-4 w-4" />
-          Save Attendance
+          {isLoading ? "Saving..." : "Save Attendance"}
         </Button>
       </CardContent>
     </Card>
