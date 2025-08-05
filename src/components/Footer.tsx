@@ -15,7 +15,7 @@ const Footer = () => {
         </div>
         <div className="flex items-center justify-center gap-6">
           <a 
-            href="https://github.com/ritik" 
+            href="https://github.com/ritikkatiyar065" 
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:text-primary transition-colors flex items-center gap-2"
@@ -24,7 +24,7 @@ const Footer = () => {
             <span className="sr-only md:not-sr-only">GitHub</span>
           </a>
           <a 
-            href="https://linkedin.com/in/ritik" 
+            href="https://www.linkedin.com/in/ritik-katiyar-590a11232/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="hover:text-primary transition-colors flex items-center gap-2"
